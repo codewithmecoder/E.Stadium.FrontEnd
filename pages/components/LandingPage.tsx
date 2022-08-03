@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import Footer from './Footer';
 
 function LandingPage() {
@@ -23,10 +24,16 @@ function LandingPage() {
         </p>
       </div>
       <div className="w-[60%] m-auto mt-10">
-        <button className="btn btn-blue w-full btn-font-fira">Sign In</button>
-        <button className="btn btn-blue w-full btn-font-fira mt-6">
-          Sign Up
-        </button>
+        <Link href="/auth/signin">
+          <p className="btn btn-blue w-full btn-font-fira text-center cursor-pointer">
+            Sign In
+          </p>
+        </Link>
+        <Link href="/auth/signup">
+          <p className="btn btn-blue w-full btn-font-fira mt-6 text-center cursor-pointer">
+            Sign Up
+          </p>
+        </Link>
       </div>
       <Footer />
     </div>

@@ -6,6 +6,10 @@ module.exports = {
   ],
   theme: {
     extend: {},
+    fontFamily: {
+      logo: ['Fira Code', 'monospace', 'ui-sans-serif', 'system-ui'],
+      welcome: ['Press Start 2P', 'cursive', 'ui-sans-serif', 'system-ui'],
+    },
   },
   plugins: [],
 };

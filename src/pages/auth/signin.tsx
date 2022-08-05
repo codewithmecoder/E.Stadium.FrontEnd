@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import 'react-phone-input-2/lib/style.css';
-import Footer from '../components/Footer';
+import Footer from '../../components/Footer';
 function signin() {
   // const [numberError, setNumberError] = useState<string>('');
   // const [phone, setPhone] = useState<string>('');

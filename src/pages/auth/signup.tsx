@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { object, string, TypeOf } from 'zod';
-import Footer from '../components/Footer';
+import Footer from '../../components/Footer';
 
 const createUserSchema = object({
   firstName: string().min(1, 'First name is required'),

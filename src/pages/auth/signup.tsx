@@ -39,12 +39,14 @@ function Signup() {
   } = useForm<CreateUserInput>({ resolver: zodResolver(createUserSchema) });
   async function onSubmit(values: CreateUserInput) {
     try {
-      console.log(values, phone, region);
-      await axios.post(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT_V1}/user`, {
-        ...values,
-        phone,
-        region,
-      });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT_V1}/v1/user`,
+        {
+          ...values,
+          phone,
+          region,
+        }
+      );
       router.push('/');
     } catch (error: any) {
       console.log(error);

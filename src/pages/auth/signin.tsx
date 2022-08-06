@@ -48,7 +48,7 @@ function Signin() {
     setRegion(e.countryCode);
   };
   return (
-    <div className="min-h-screen h-screen bg-[#b3b3b3d6] flex">
+    <div className="min-h-screen h-screen bg-base flex">
       <div className="bg-white m-auto h-[98%] w-[70%] md:w-[50%] lg:w-[40%] rounded-lg p-5">
         <p className="text-center font-semibold text-[25px] font-logo">
           Sign In!

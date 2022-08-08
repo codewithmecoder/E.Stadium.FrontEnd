@@ -1,11 +1,22 @@
-import axios from 'axios';
-import { CONSTANT } from '../constants/constant';
-import { UserInfo } from '../models/user.model';
+import axios, { AxiosRequestHeaders } from 'axios';
+import { user, UserInfo } from '../models/user.model';
+import { setUser } from '../redux/slices/userSlices/userSlices';
 
-export const getUserStorage = () => {
-  const userStr = localStorage.getItem(CONSTANT.userData);
-  if (!userStr) return null;
-  return JSON.parse(userStr) as UserInfo;
+export const getUser = async (headers: AxiosRequestHeaders, store: any) => {
+  let userInfo = user;
+  try {
+    const { data } = await axiosInstance.get<UserInfo>('v1/user', {
+      headers: headers as AxiosRequestHeaders,
+      withCredentials: true,
+    });
+    userInfo = data;
+    store.dispatch(setUser(data));
+  } catch (error) {
+    userInfo = null;
+  }
+  return {
+    props: { userData: userInfo as UserInfo },
+  };
 };
 
 export const axiosInstance = axios.create({

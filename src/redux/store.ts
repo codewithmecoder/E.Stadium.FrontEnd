@@ -1,20 +1,21 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
+import navbarReducer from './slices/navbars/navbarSlice';
 import userReducer from './slices/userSlices/userSlices';
-
 const combinedReducer = combineReducers({
   userReducer,
+  navbarReducer,
 });
 
 const masterReducer = (state: any, action: any) => {
   if (action.type === HYDRATE) {
     const nextState = {
-      ...state, // use previous state
-      //   counter: {
-      //     count: state.counter.count + action.payload.counter.count,
-      //   },
+      ...state,
       userReducer: {
-        user: { ...state.userReducer.user, ...action.payload.userReducer.user }, //[...action.payload.user, ...state.user],
+        user: { ...state.userReducer.user, ...action.payload.userReducer.user },
+      },
+      navbarReducer: {
+        menus: [...action.payload.navbarReducer.menus],
       },
     };
     return nextState;

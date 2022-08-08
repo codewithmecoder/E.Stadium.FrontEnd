@@ -15,5 +15,5 @@ module.exports = {
       welcome: ['Press Start 2P', 'cursive', 'ui-sans-serif', 'system-ui'],
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 };

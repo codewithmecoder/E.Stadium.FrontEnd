@@ -5,89 +5,65 @@ import { MouseEventHandler, useState } from 'react';
 import { AiOutlineBell, AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
 import { axiosInstance } from '../lib/util';
+import {
+  menuState,
+  profileManu,
+  updateActiveNav,
+} from '../redux/slices/navbars/navbarSlice';
 import { logOut, userState } from '../redux/slices/userSlices/userSlices';
-
-interface Menu {
-  id: number;
-  value: string;
-  isCurrent: boolean;
-  href: string;
-}
-
-const menu: Menu[] = [
-  {
-    id: 1,
-    value: 'Home',
-    isCurrent: true,
-    href: 'home',
-  },
-  {
-    id: 2,
-    value: 'Team',
-    isCurrent: false,
-    href: 'team',
-  },
-  {
-    id: 3,
-    value: 'Project',
-    isCurrent: false,
-    href: 'project',
-  },
-  {
-    id: 4,
-    value: 'Calendar',
-    isCurrent: false,
-    href: 'calendar',
-  },
-  {
-    id: 5,
-    value: 'Report',
-    isCurrent: false,
-    href: 'report',
-  },
-];
-const profileManu = ['Your Profile', 'Settings'];
-
-const updateActiveNav = (id: number) => {
-  menu?.forEach((i) => {
-    if (id === i.id) i.isCurrent = true;
-    else i.isCurrent = false;
-  });
-};
 
 interface NavProps {
   className: string;
+  isStadiumRental: boolean;
 }
 
-function Nav({ className }: NavProps) {
+function Nav({ className, isStadiumRental }: NavProps) {
+  const dispatch = useDispatch();
+  const menu = useSelector(menuState);
+  // console.log(menu);
   return (
     <div>
-      {menu.map((v, i) => (
-        <Link href={`/${v.href}`} key={i}>
-          <a
-            onClick={() => updateActiveNav(v.id)}
-            className={`${
-              v.isCurrent ? 'bg-gray-900 text-white' : 'text-gray-300'
-            } ${className}`}
-          >
-            {v.value}
-          </a>
-        </Link>
-      ))}
+      {menu.map((v, i) =>
+        v.href === 'mystadium' && isStadiumRental ? (
+          <Link href={`/${v.href}`} key={i}>
+            <a
+              onClick={() => dispatch(updateActiveNav(v.id))}
+              className={`${
+                v.isCurrent ? 'bg-gray-900 text-white' : 'text-gray-300'
+              } ${className}`}
+            >
+              {v.value}
+            </a>
+          </Link>
+        ) : (
+          v.href !== 'mystadium' && (
+            <Link href={`/${v.href}`} key={i}>
+              <a
+                onClick={() => dispatch(updateActiveNav(v.id))}
+                className={`${
+                  v.isCurrent ? 'bg-gray-900 text-white' : 'text-gray-300'
+                } ${className}`}
+              >
+                {v.value}
+              </a>
+            </Link>
+          )
+        )
+      )}
     </div>
   );
 }
-
 interface NavProfileProps {
   className: string;
+  userId?: string;
   onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
 }
-const NavProfile = ({ className, onClick }: NavProfileProps) => {
+const NavProfile = ({ className, userId, onClick }: NavProfileProps) => {
   return (
     <div>
       {profileManu.map((v, i) => (
-        <Link href="#" key={i}>
-          <a className={className}>{v}</a>
+        <Link href={`/${v.href}/${userId}`} key={i}>
+          <a className={className}>{v.value}</a>
         </Link>
       ))}
       <button className={`${className} w-full text-left`} onClick={onClick}>
@@ -107,30 +83,30 @@ function Header() {
   const logout = async () => {
     await axiosInstance.post('/v1/user/logout');
     dispatch(logOut());
+    router.push('/');
   };
   const handleOpenProfileMenu = () => setOpenProfileMenu((prev) => !prev);
   const handleShowHideMenu = () => {
     setShowHideMenu((prev) => !prev);
     setIconX((prev) => !prev);
   };
-
   return (
-    <div className="w-screen h-[6%] bg-gray-800">
-      <div className="flex px-3 gap-5 items-center">
-        <div className="relitive mt-2">
-          <Image
-            src="/images/profile.png"
-            alt="E Staduim"
-            width={40}
-            height={40}
-            className="cursor-pointer"
-            onClick={() => router.push('/')}
-          />
+    <div className="w-screen h-[6%] bg-gray-800 sticky top-0">
+      <div className="flex px-3 gap-5 items-center justify-center">
+        <div className="relitive mt-2 px-3 cursor-pointer text-gray-300 hover:text-gray-50">
+          <Link href="/">
+            <h2 className="font-medium h-[38px] text-center mt-2 font-logo">
+              E Stadium
+            </h2>
+          </Link>
         </div>
         <div className="flex-1">
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <Nav className="hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" />
+              <Nav
+                isStadiumRental={userInfo?.isStadiumRental || false}
+                className="hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              />
             </div>
           </div>
         </div>
@@ -141,14 +117,18 @@ function Header() {
           >
             <AiOutlineBell className="h-6 w-6 hover:text-white text-gray-400" />
           </button>
-          <div className="relitive mt-1">
+          <div className="relitive mt-1 mr-3">
             <button
               onClick={handleOpenProfileMenu}
               type="button"
               className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
             >
               <Image
-                src="/images/profile.png"
+                src={
+                  userInfo?.imageUrl
+                    ? userInfo?.imageUrl
+                    : '/images/profile.png'
+                }
                 alt="E Staduim"
                 width={30}
                 height={30}
@@ -162,6 +142,7 @@ function Header() {
           >
             <NavProfile
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              userId={userInfo?.id}
               onClick={logout}
             />
           </div>
@@ -184,10 +165,11 @@ function Header() {
       <div
         className={`${
           showHideMenu ? 'block' : 'hidden'
-        } md:hidden bg-gray-800 -m-1.5 w-full mx-auto`}
+        } md:hidden bg-gray-800 -m-1.5 w-full mx-auto !z-50`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <Nav
+            isStadiumRental={userInfo?.isStadiumRental || false}
             className={`hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium`}
           />
         </div>
@@ -195,7 +177,11 @@ function Header() {
           <div className="flex items-center px-5">
             <div className="flex-shrink-0">
               <Image
-                src="/images/profile.png"
+                src={
+                  userInfo?.imageUrl
+                    ? userInfo?.imageUrl
+                    : '/images/profile.png'
+                }
                 alt="E Staduim"
                 width={40}
                 height={40}
@@ -219,6 +205,7 @@ function Header() {
           <div className="mt-3 px-2 space-y-1">
             <NavProfile
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
+              userId={userInfo?.id}
               onClick={logout}
             />
           </div>

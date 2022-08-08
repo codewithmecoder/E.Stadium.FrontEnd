@@ -10,8 +10,9 @@ export interface UserInfo {
   lastName: string;
   phone: string;
   region: string;
-  token: string;
   updatedAt: string;
+  fullName: string;
+  imageUrl: string;
 }
 
 export const user: UserInfo | null = {
@@ -26,8 +27,9 @@ export const user: UserInfo | null = {
   lastName: '',
   phone: '',
   region: '',
-  token: '',
   updatedAt: '',
+  fullName: '',
+  imageUrl: '',
 };
 
 // export const userInfoState = atom<UserInfo | null>({

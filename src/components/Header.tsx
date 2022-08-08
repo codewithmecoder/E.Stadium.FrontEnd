@@ -1,10 +1,102 @@
-import axios from 'axios';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { AiOutlineBell } from 'react-icons/ai';
+import { MouseEventHandler, useState } from 'react';
+import { AiOutlineBell, AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
+import { axiosInstance } from '../lib/util';
 import { logOut, userState } from '../redux/slices/userSlices/userSlices';
+
+interface Menu {
+  id: number;
+  value: string;
+  isCurrent: boolean;
+  href: string;
+}
+
+const menu: Menu[] = [
+  {
+    id: 1,
+    value: 'Home',
+    isCurrent: true,
+    href: 'home',
+  },
+  {
+    id: 2,
+    value: 'Team',
+    isCurrent: false,
+    href: 'team',
+  },
+  {
+    id: 3,
+    value: 'Project',
+    isCurrent: false,
+    href: 'project',
+  },
+  {
+    id: 4,
+    value: 'Calendar',
+    isCurrent: false,
+    href: 'calendar',
+  },
+  {
+    id: 5,
+    value: 'Report',
+    isCurrent: false,
+    href: 'report',
+  },
+];
+const profileManu = ['Your Profile', 'Settings'];
+
+const updateActiveNav = (id: number) => {
+  menu?.forEach((i) => {
+    if (id === i.id) i.isCurrent = true;
+    else i.isCurrent = false;
+  });
+};
+
+interface NavProps {
+  className: string;
+}
+
+function Nav({ className }: NavProps) {
+  return (
+    <div>
+      {menu.map((v, i) => (
+        <Link href={`/${v.href}`} key={i}>
+          <a
+            onClick={() => updateActiveNav(v.id)}
+            className={`${
+              v.isCurrent ? 'bg-gray-900 text-white' : 'text-gray-300'
+            } ${className}`}
+          >
+            {v.value}
+          </a>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+interface NavProfileProps {
+  className: string;
+  onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
+}
+const NavProfile = ({ className, onClick }: NavProfileProps) => {
+  return (
+    <div>
+      {profileManu.map((v, i) => (
+        <Link href="#" key={i}>
+          <a className={className}>{v}</a>
+        </Link>
+      ))}
+      <button className={`${className} w-full text-left`} onClick={onClick}>
+        Sign out
+      </button>
+    </div>
+  );
+};
+
 function Header() {
   const userInfo = useSelector(userState);
   const router = useRouter();
@@ -13,19 +105,15 @@ function Header() {
   const [showHideMenu, setShowHideMenu] = useState<Boolean>(false);
   const [iconX, setIconX] = useState<Boolean>(false);
   const logout = async () => {
-    axios.defaults.withCredentials = true;
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/v1/user/logout`,
-      {
-        withCredentials: true,
-        crossDomain: true,
-      }
-    );
+    await axiosInstance.post('/v1/user/logout');
     dispatch(logOut());
   };
   const handleOpenProfileMenu = () => setOpenProfileMenu((prev) => !prev);
-  const handleShowHideMenu = () => setShowHideMenu((prev) => !prev);
-  const handleIconX = () => setIconX((prev) => !prev);
+  const handleShowHideMenu = () => {
+    setShowHideMenu((prev) => !prev);
+    setIconX((prev) => !prev);
+  };
+
   return (
     <div className="w-screen h-[6%] bg-gray-800">
       <div className="flex px-3 gap-5 items-center">
@@ -35,47 +123,14 @@ function Header() {
             alt="E Staduim"
             width={40}
             height={40}
+            className="cursor-pointer"
+            onClick={() => router.push('/')}
           />
         </div>
         <div className="flex-1">
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              {/* <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" --> */}
-              <a
-                href="#"
-                className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium"
-                aria-current="page"
-              >
-                Dashboard
-              </a>
-
-              <a
-                href="#"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Team
-              </a>
-
-              <a
-                href="#"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Projects
-              </a>
-
-              <a
-                href="#"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Calendar
-              </a>
-
-              <a
-                href="#"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Reports
-              </a>
+              <Nav className="hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" />
             </div>
           </div>
         </div>
@@ -84,7 +139,7 @@ function Header() {
             type="button"
             className="bg-gray-800 p-1 rounded-full text-gray-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
           >
-            <AiOutlineBell className="text-[23px] hover:text-white text-gray-400" />
+            <AiOutlineBell className="h-6 w-6 hover:text-white text-gray-400" />
           </button>
           <div className="relitive mt-1">
             <button
@@ -102,77 +157,27 @@ function Header() {
           </div>
           <div
             className={`${
-              openProfileMenu ? 'hidden' : 'absolute'
+              !openProfileMenu ? 'hidden' : 'absolute'
             } origin-top-right absolute ease-in right-4 w-48 top-12 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none`}
           >
-            {/* <!-- Active: "bg-gray-100", Not Active: "" --> */}
-            <a
-              href="#"
+            <NavProfile
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              role="menuitem"
-              id="user-menu-item-0"
-            >
-              Your Profile
-            </a>
-
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              role="menuitem"
-              id="user-menu-item-1"
-            >
-              Settings
-            </a>
-
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              role="menuitem"
-              id="user-menu-item-2"
-            >
-              Sign out
-            </a>
+              onClick={logout}
+            />
           </div>
         </div>
-        <div className="md:hidden">
+        <div className="md:hidden ease-in-out duration-300">
           <button
             onClick={handleShowHideMenu}
             type="button"
             className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
           >
-            <span className="sr-only">Open main menu</span>
-            <svg
-              onClick={handleIconX}
+            <AiOutlineMenu
               className={`${iconX ? 'hidden' : 'block'} h-5 w-5`}
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-            <svg
-              onClick={handleIconX}
+            />
+            <AiOutlineClose
               className={`${iconX ? 'block' : 'hidden'} h-5 w-5`}
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            />
           </button>
         </div>
       </div>
@@ -182,137 +187,44 @@ function Header() {
         } md:hidden bg-gray-800 -m-1.5 w-full mx-auto`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          {/* <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" --> */}
-          <a
-            href="#"
-            className="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium"
-            aria-current="page"
-          >
-            Dashboard
-          </a>
-
-          <a
-            href="#"
-            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-          >
-            Team
-          </a>
-
-          <a
-            href="#"
-            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-          >
-            Projects
-          </a>
-
-          <a
-            href="#"
-            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-          >
-            Calendar
-          </a>
-
-          <a
-            href="#"
-            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-          >
-            Reports
-          </a>
+          <Nav
+            className={`hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium`}
+          />
         </div>
         <div className="pt-4 pb-3 border-t border-gray-700">
           <div className="flex items-center px-5">
             <div className="flex-shrink-0">
-              <img
-                className="h-10 w-10 rounded-full"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt=""
+              <Image
+                src="/images/profile.png"
+                alt="E Staduim"
+                width={40}
+                height={40}
               />
             </div>
             <div className="ml-3">
               <div className="text-base font-medium leading-none text-white">
-                Tom Cook
+                {userInfo?.firstName}
               </div>
-              <div className="text-sm font-medium leading-none text-gray-400">
-                tom@example.com
+              <div className="text-sm font-medium leading-none text-gray-400 mt-0.5">
+                {userInfo?.email ? userInfo?.email : 'No Email'}
               </div>
             </div>
             <button
               type="button"
               className="ml-auto bg-gray-800 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
             >
-              <span className="sr-only">View notifications</span>
-              {/* <!-- Heroicon name: outline/bell --> */}
-              <svg
-                className="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
+              <AiOutlineBell className="h-6 w-6" />
             </button>
           </div>
           <div className="mt-3 px-2 space-y-1">
-            <a
-              href="#"
+            <NavProfile
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
-            >
-              Your Profile
-            </a>
-
-            <a
-              href="#"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
-            >
-              Settings
-            </a>
-
-            <a
-              href="#"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
-            >
-              Sign out
-            </a>
+              onClick={logout}
+            />
           </div>
         </div>
       </div>
     </div>
-
-    // <div className="w-screen h-10 bg-white flex px-3 gap-5">
-    //   <button className="btn btn-light-gray w-[80px]" onClick={logout}>
-    //     Logout
-    //   </button>
-    //   <form className="flex-1 h-[100%]">
-    //     <div className="input-box flex items-center gap-5">
-    //       <label htmlFor="default-search">
-    //         <BsSearch />
-    //       </label>
-    //       <input
-    //         type="search"
-    //         id="default-search"
-    //         className="focus:outline-none focus:shadow-outline w-full"
-    //         placeholder="search name, location etc..."
-    //         autoComplete="off"
-    //       />
-    //     </div>
-    //   </form>
-    //   <div className="btn btn-light-gray w-auto">
-    //     <p>My Stadium</p>
-    //   </div>
-    //   <div
-    //     className="cursor-pointer"
-    //     onClick={() => router.push(`/profile/${userInfo?.id}`)}
-    //   >
-    //     <AiOutlineUser className="text-[35px]" />
-    //   </div>
-    // </div>
   );
 }
 

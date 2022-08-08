@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,6 +8,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { object, string, TypeOf } from 'zod';
 import Footer from '../../components/Footer';
+import { axiosInstance } from '../../lib/util';
 
 const createUserSchema = object({
   firstName: string().min(1, 'First name is required'),
@@ -39,14 +39,11 @@ function Signup() {
   } = useForm<CreateUserInput>({ resolver: zodResolver(createUserSchema) });
   async function onSubmit(values: CreateUserInput) {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT_V1}/v1/user`,
-        {
-          ...values,
-          phone,
-          region,
-        }
-      );
+      await axiosInstance.post('/v1/user', {
+        ...values,
+        phone,
+        region,
+      });
       router.push('/');
     } catch (error: any) {
       console.log(error);

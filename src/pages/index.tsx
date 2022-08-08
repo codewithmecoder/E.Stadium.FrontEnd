@@ -1,8 +1,9 @@
-import axios, { AxiosRequestHeaders } from 'axios';
+import { AxiosRequestHeaders } from 'axios';
 import Head from 'next/head';
 import { useSelector } from 'react-redux';
 import Header from '../components/Header';
 import LandingPage from '../components/LandingPage';
+import { axiosInstance } from '../lib/util';
 import { user, UserInfo } from '../models/user.model';
 import { setUser, userState } from '../redux/slices/userSlices/userSlices';
 import { wrapper } from '../redux/store';
@@ -33,13 +34,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const headers = context.req.headers;
     let userInfo = user;
     try {
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/v1/user`,
-        {
-          headers: headers as AxiosRequestHeaders,
-          withCredentials: true,
-        }
-      );
+      const { data } = await axiosInstance.get<UserInfo>('v1/user', {
+        headers: headers as AxiosRequestHeaders,
+        withCredentials: true,
+      });
       userInfo = data;
       store.dispatch(setUser(data));
     } catch (error) {

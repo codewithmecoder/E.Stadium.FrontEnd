@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,6 +8,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { object, string, TypeOf } from 'zod';
 import Footer from '../../components/Footer';
+import { axiosInstance } from '../../lib/util';
 const signInUserSchema = object({
   password: string().min(1, 'Password is required'),
 });
@@ -16,7 +16,7 @@ const signInUserSchema = object({
 type SignInUserInput = TypeOf<typeof signInUserSchema>;
 
 function Signin() {
-  const Router = useRouter();
+  const router = useRouter();
   const [registerError, setRegisterError] = useState(null);
   const [phone, setPhone] = useState<string>('');
   const [region, setRegion] = useState<string>('');
@@ -27,16 +27,12 @@ function Signin() {
   } = useForm<SignInUserInput>({ resolver: zodResolver(signInUserSchema) });
   async function onSubmit(values: SignInUserInput) {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/v1/user/login`,
-        {
-          ...values,
-          phone,
-          region,
-        },
-        { withCredentials: true }
-      );
-      Router.push('/');
+      await axiosInstance.post('/v1/user/login', {
+        ...values,
+        phone,
+        region,
+      });
+      router.push('/');
     } catch (error: any) {
       console.log(error);
       setRegisterError(error.response?.data?.message || error.message);
@@ -90,10 +86,11 @@ function Signin() {
               <button
                 className={`${
                   isSubmitting
-                    ? 'disabled'
-                    : 'focus:outline-none focus:shadow-outline'
-                } bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded`}
+                    ? 'bg-blue-300'
+                    : 'focus:outline-none focus:shadow-outline hover:bg-blue-700'
+                } bg-blue-500 text-white font-bold py-2 px-4 rounded`}
                 type="submit"
+                disabled={isSubmitting}
               >
                 {isSubmitting ? 'Submitting' : 'Sign In'}
               </button>

@@ -1,10 +1,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
 import navbarReducer from './slices/navbars/navbarSlice';
+import stadiumIdReducer from './slices/stadiums/stadiumSlice';
 import userReducer from './slices/userSlices/userSlices';
 const combinedReducer = combineReducers({
   userReducer,
   navbarReducer,
+  stadiumIdReducer,
 });
 
 const masterReducer = (state: any, action: any) => {

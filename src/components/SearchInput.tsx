@@ -1,7 +1,7 @@
 import { BiSearch } from 'react-icons/bi';
 function SearchInput() {
   return (
-    <form className="flex items-center">
+    <form className="flex items-center md:w-[75%] mx-auto">
       <label htmlFor="simple-search" className="sr-only">
         Search
       </label>

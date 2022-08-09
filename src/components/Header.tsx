@@ -91,7 +91,8 @@ function Header() {
     setIconX((prev) => !prev);
   };
   return (
-    <div className="w-screen h-[6%] bg-gray-800 sticky top-0">
+    //  sticky top-0
+    <div className="w-screen h-[6%] bg-gray-800">
       <div className="flex px-3 gap-5 items-center justify-center">
         <div className="relitive mt-2 px-3 cursor-pointer text-gray-300 hover:text-gray-50">
           <Link href="/">

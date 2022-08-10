@@ -1,12 +1,16 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
+import stadiumUserReducer from './slices//stadiums/stadiumByUserSlice';
 import navbarReducer from './slices/navbars/navbarSlice';
+import stadiumReducer from './slices/stadiums/allStadiumsSlice';
 import stadiumIdReducer from './slices/stadiums/stadiumSlice';
 import userReducer from './slices/userSlices/userSlices';
 const combinedReducer = combineReducers({
   userReducer,
   navbarReducer,
   stadiumIdReducer,
+  stadiumReducer,
+  stadiumUserReducer,
 });
 
 const masterReducer = (state: any, action: any) => {
@@ -18,6 +22,12 @@ const masterReducer = (state: any, action: any) => {
       },
       navbarReducer: {
         menus: [...action.payload.navbarReducer.menus],
+      },
+      stadiumReducer: {
+        stadiums: { ...action.payload.stadiumReducer.stadiums },
+      },
+      stadiumUserReducer: {
+        stadiums: { ...action.payload.stadiumUserReducer.stadiums },
       },
     };
     return nextState;

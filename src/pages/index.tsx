@@ -1,6 +1,5 @@
 import { AxiosRequestHeaders } from 'axios';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Header from '../components/Header';
 import LandingPage from '../components/LandingPage';
@@ -9,26 +8,15 @@ import Stadium from '../components/Stadium';
 import { axiosInstance, getUser } from '../lib/util';
 import { Paginate } from '../models/paginate.model';
 import { StadiumInfo } from '../models/stadiums/stadium.model';
+import {
+  setAllStadium,
+  stadiumAllState,
+} from '../redux/slices/stadiums/allStadiumsSlice';
 import { userState } from '../redux/slices/userSlices/userSlices';
 import { wrapper } from '../redux/store';
 const Home = () => {
   const userData = useSelector(userState);
-  const [stadiumInfo, setStadiumInfo] = useState<
-    Paginate<StadiumInfo> | undefined
-  >();
-  useEffect(() => {
-    const fetchStadium = async () => {
-      try {
-        const { data } = await axiosInstance.get<Paginate<StadiumInfo>>(
-          'v1/stadium/all'
-        );
-        setStadiumInfo(data);
-      } catch (error) {
-        setStadiumInfo(undefined);
-      }
-    };
-    fetchStadium();
-  }, []);
+  const stadiumInfo = useSelector(stadiumAllState);
   return (
     <div className="flex pb-2 min-h-screen h-screen bg-base">
       <Head>
@@ -64,6 +52,21 @@ export default Home;
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (context) => {
     const headers = context.req.headers;
-    return await getUser(headers as AxiosRequestHeaders, store);
+    const data = await getUser(headers as AxiosRequestHeaders, store);
+    let stadiumInfo: Paginate<StadiumInfo> | null = {} as Paginate<StadiumInfo>;
+    try {
+      const { data } = await axiosInstance.get<Paginate<StadiumInfo>>(
+        'v1/stadium/all',
+        {
+          headers: headers as AxiosRequestHeaders,
+          withCredentials: true,
+        }
+      );
+      stadiumInfo = data;
+      store.dispatch(setAllStadium(data));
+    } catch (error) {
+      stadiumInfo = null;
+    }
+    return data;
   }
 );

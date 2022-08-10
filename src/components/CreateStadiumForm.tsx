@@ -15,7 +15,6 @@ import {
 } from '../redux/slices/stadiums/stadiumSlice';
 interface Props {
   setShowModal: Dispatch<SetStateAction<boolean>>;
-  setReFetch: Dispatch<SetStateAction<boolean>>;
   showModal: boolean;
 }
 
@@ -29,7 +28,7 @@ const createStadiumSchema = object({
 
 type CreateStadiumInput = TypeOf<typeof createStadiumSchema>;
 
-const CreateStadiumForm = ({ setShowModal, setReFetch, showModal }: Props) => {
+const CreateStadiumForm = ({ setShowModal, showModal }: Props) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [registerError, setRegisterError] = useState(null);
@@ -59,7 +58,6 @@ const CreateStadiumForm = ({ setShowModal, setReFetch, showModal }: Props) => {
       console.log(data);
       dispatch(setUserStadiumId(data));
       setShowModal(false);
-      setReFetch((prev) => !prev);
     } catch (error: any) {
       console.log(error);
       setRegisterError(error.response?.data?.message);

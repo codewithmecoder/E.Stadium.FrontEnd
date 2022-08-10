@@ -11,6 +11,11 @@ import { axiosInstance, getUser } from '../lib/util';
 import { Paginate } from '../models/paginate.model';
 import { StadiumInfo } from '../models/stadiums/stadium.model';
 import { updateActiveByHref } from '../redux/slices/navbars/navbarSlice';
+import {
+  addStadiumToUserStadium,
+  setUserStadium,
+  stadiumUserState,
+} from '../redux/slices/stadiums/stadiumByUserSlice';
 import { stadiumIdState } from '../redux/slices/stadiums/stadiumSlice';
 import { userState } from '../redux/slices/userSlices/userSlices';
 import { wrapper } from '../redux/store';
@@ -25,26 +30,9 @@ const MyStaiumPage = () => {
   const userInfo = useSelector(userState);
   const staduimId = useSelector(stadiumIdState);
   const [showModal, setShowModal] = useState(false);
-  const [stadiumInfo, setStadiumInfo] = useState<
-    Paginate<StadiumInfo> | undefined
-  >();
-  const [reFetch, setReFetch] = useState(false);
-
+  const stadiumInfo = useSelector(stadiumUserState);
   useEffect(() => {
     dispatch(updateActiveByHref('mystadium'));
-  }, []);
-  useEffect(() => {
-    const fetchStadium = async () => {
-      try {
-        const { data } = await axiosInstance.get<Paginate<StadiumInfo>>(
-          'v1/stadium/all-by-user'
-        );
-        setStadiumInfo(data);
-      } catch (error) {
-        setStadiumInfo(undefined);
-      }
-    };
-    fetchStadium();
   }, []);
   useEffect(() => {
     if (staduimId) {
@@ -53,16 +41,9 @@ const MyStaiumPage = () => {
           const { data } = await axiosInstance.get<StadiumInfo>(
             `v1/stadium/${staduimId}`
           );
-          setStadiumInfo({
-            ...stadiumInfo,
-            items: [...stadiumInfo!.items!, data].sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
-            ),
-          });
+          dispatch(addStadiumToUserStadium(data));
         } catch (error) {
-          setStadiumInfo(undefined);
+          console.error(error);
         }
       };
       fetchStadium();
@@ -94,11 +75,7 @@ const MyStaiumPage = () => {
           <AiFillPlusCircle className="w-7 h-7 md:w-10 md:h-10 text-gray-500 dark:text-gray-100" />
         </button>
       </div>
-      <CreateStadiumForm
-        setShowModal={setShowModal}
-        showModal={showModal}
-        setReFetch={setReFetch}
-      />
+      <CreateStadiumForm setShowModal={setShowModal} showModal={showModal} />
     </div>
   );
 };
@@ -108,24 +85,24 @@ export default MyStaiumPage;
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ req }) => {
-      // let stadiumInfo: Paginate<StadiumInfo> | null =
-      //   {} as Paginate<StadiumInfo>;
+      let stadiumInfo: Paginate<StadiumInfo> | null =
+        {} as Paginate<StadiumInfo>;
       await getUser(req.headers as AxiosRequestHeaders, store);
-      // try {
-      //   const { data } = await axiosInstance.get<Paginate<StadiumInfo>>(
-      //     'v1/stadium/all',
-      //     {
-      //       headers: req.headers as AxiosRequestHeaders,
-      //       withCredentials: true,
-      //     }
-      //   );
-      //   stadiumInfo = data;
-      //   //store.dispatch(setUser(data));
-      // } catch (error) {
-      //   stadiumInfo = null;
-      // }
+      try {
+        const { data } = await axiosInstance.get<Paginate<StadiumInfo>>(
+          'v1/stadium/all-by-user',
+          {
+            headers: req.headers as AxiosRequestHeaders,
+            withCredentials: true,
+          }
+        );
+        stadiumInfo = data;
+        store.dispatch(setUserStadium(data));
+      } catch (error) {
+        stadiumInfo = null;
+      }
       return {
-        props: { stadiumInfo: null },
+        props: { stadiumInfo },
       };
     }
 );

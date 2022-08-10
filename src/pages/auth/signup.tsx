@@ -174,7 +174,8 @@ function Signup() {
               <input
                 className={`input-box focus:outline-none focus:shadow-outline`}
                 type="password"
-                placeholder="******************"
+                placeholder="***********"
+                autoComplete="off"
                 {...register('password')}
               />
               <p className="text-red-500 text-xs italic">
@@ -186,7 +187,8 @@ function Signup() {
               <input
                 className={`input-box focus:outline-none focus:shadow-outline`}
                 type="password"
-                placeholder="******************"
+                placeholder="***********"
+                autoComplete="off"
                 {...register('passwordConfirmation')}
               />
               <p className="text-red-500 text-xs italic">

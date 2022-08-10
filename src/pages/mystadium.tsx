@@ -48,7 +48,6 @@ const MyStaiumPage = () => {
       };
       fetchStadium();
     }
-    console.log({ stadiumInfo, staduimId });
   }, [staduimId]);
   return (
     <div className="min-h-screen min-w-full">

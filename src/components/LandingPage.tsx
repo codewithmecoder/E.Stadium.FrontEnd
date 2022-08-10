@@ -4,7 +4,7 @@ import Footer from './Footer';
 
 function LandingPage() {
   return (
-    <div className="bg-white m-auto h-[98%] w-[70%] md:w-[50%] lg:w-[40%] rounded-lg p-5">
+    <div className="bg-white m-auto h-screen w-screen md:w-[70%] lg:w-[60%] rounded-lg p-5">
       <div className="pl-[10%] lg:pl-[25%]">
         <Image
           src="/images/signup-logo.jpg"

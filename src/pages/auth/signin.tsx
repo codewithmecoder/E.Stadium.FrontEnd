@@ -75,7 +75,8 @@ function Signin() {
               <input
                 className={`input-box focus:outline-none focus:shadow-outline`}
                 type="password"
-                placeholder="******************"
+                placeholder="**********"
+                autoComplete="off"
                 {...register('password')}
               />
               <p className="text-red-500 text-xs italic">

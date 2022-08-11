@@ -1,6 +1,7 @@
 import axios, { AxiosRequestHeaders } from 'axios';
 import { user, UserInfo } from '../models/user.model';
 import { setUser } from '../redux/slices/userSlices/userSlices';
+import { ENV } from './env';
 
 export const getUser = async (headers: AxiosRequestHeaders, store: any) => {
   let userInfo = user;
@@ -20,6 +21,6 @@ export const getUser = async (headers: AxiosRequestHeaders, store: any) => {
 };
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_ENDPOINT,
+  baseURL: ENV.NEXT_PUBLIC_SERVER_ENDPOINT,
 });
 axiosInstance.defaults.withCredentials = true;

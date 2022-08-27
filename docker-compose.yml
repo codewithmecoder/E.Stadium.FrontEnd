@@ -1,0 +1,10 @@
+version: '3.5'
+
+services:
+  e-stadium-web:
+    build: .
+    container_name: e_stadium_web #${IMAGE_NAME}
+    image: e_stadium_web #${IMAGE_NAME}
+    ports:
+      - '3000:3000'
+    restart: always

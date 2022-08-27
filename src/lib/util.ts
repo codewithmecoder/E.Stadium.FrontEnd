@@ -1,6 +1,5 @@
 import axios, { AxiosRequestHeaders } from 'axios';
 import { user, UserInfo } from '../models/user.model';
-import { setUser } from '../redux/slices/userSlices/userSlices';
 import { ENV } from './env';
 
 export const getUser = async (headers: AxiosRequestHeaders, store: any) => {
@@ -11,7 +10,6 @@ export const getUser = async (headers: AxiosRequestHeaders, store: any) => {
       withCredentials: true,
     });
     userInfo = data;
-    store.dispatch(setUser(data));
   } catch (error) {
     userInfo = null;
   }
